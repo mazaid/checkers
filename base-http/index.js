@@ -25,7 +25,7 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
             if (rawResult.error) {
-                return reject(new Error(rawResult.error.message));
+                return reject(new Error((rawResult.error)));
             }
 
             resolve(rawResult);
@@ -44,12 +44,13 @@ module.exports = {
                 resolve({
                     status: 'fail',
                     message: `response time = ${result.responseTime} ms ( > ${data['responseTime <=']} ms)`,
-                    avg: result.responseTime
+                    responseTime: result.responseTime
                 });
             } else {
                 resolve({
                     status: 'pass',
-                    avg: result.responseTime
+                    message: `response time = ${result.responseTime} ms ( <= ${data['responseTime <=']} ms)`,
+                    responseTime: result.responseTime
                 });
             }
         });
