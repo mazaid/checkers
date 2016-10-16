@@ -98,6 +98,7 @@ module.exports = {
             } else {
                 resolve({
                     status: 'pass',
+                    message: `avg response time = ${avg} ms`,
                     avg: avg
                 });
             }
