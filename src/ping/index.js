@@ -63,6 +63,7 @@ module.exports = {
     analyze: function (logger, data, result) {
 
         return new Promise((resolve, reject) => {
+
             if (!result) {
                 return resolve({status: 'fail', message: 'empty data'});
             }

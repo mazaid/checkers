@@ -1,4 +1,4 @@
 module.exports = [
-    require('./ping'),
-    require('./http')
+    require('./src/ping'),
+    require('./src/http')
 ];

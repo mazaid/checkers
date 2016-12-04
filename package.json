@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "./node_modules/.bin/eslint -c .eslintrc.js src",
+    "lint:fix": "./node_modules/.bin/eslint -c .eslintrc.js --fix src"
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/mazaid/checkers/issues"
   },
-  "homepage": "https://github.com/mazaid/checkers#readme"
+  "homepage": "https://github.com/mazaid/checkers#readme",
+  "devDependencies": {
+    "esdoc": "^0.4.8",
+    "esdoc-node": "^1.0.0",
+    "eslint": "^3.11.1"
+  }
 }
