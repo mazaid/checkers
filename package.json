@@ -22,5 +22,8 @@
     "esdoc": "^0.4.8",
     "esdoc-node": "^1.0.0",
     "eslint": "^3.11.1"
+  },
+  "dependencies": {
+    "content-type": "^1.0.2"
   }
 }
