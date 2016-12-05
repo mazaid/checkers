@@ -22,7 +22,7 @@ var curlTimingFormat = {
     num_redirects: '%{num_redirects}'
 };
 
-curlTimingFormat = '\n\n\ncurlTimings=' + JSON.stringify(curlTimingFormat);
+curlTimingFormat = '\n\n\ncurlMetrics=' + JSON.stringify(curlTimingFormat);
 
 var getCurlMetrics = require('./getCurlMetrics');
 var parseRequestHeaders = require('./parseRequestHeaders');
@@ -36,13 +36,21 @@ module.exports = {
 
     defaultData: {
         method: 'GET',
-        url: null
+        url: null,
+        saveResponseBody: false,
+        httpCodes: [200],
+        responseTimeWarn: null,
+        responseTimeFail: null
     },
 
     prepare: function (logger, data) {
 
         return new Promise((resolve, reject) => {
             var args = [];
+
+            if (!data.url) {
+                return reject(new Error('data.url should be a valid http uri'));
+            }
 
             args.push('--silent');
             args.push('--verbose');
@@ -59,7 +67,7 @@ module.exports = {
 
     },
 
-    parse: function (logger, raw) {
+    parse: function (logger, raw, data) {
 
         return new Promise((resolve, reject) => {
             if (raw.error) {
@@ -80,11 +88,18 @@ module.exports = {
 
             raw.stdout = metricResult.stdout;
 
-            result.metrics = metricResult.timings;
+            result.metrics = metricResult.metrics;
+
+            result.code = result.metrics.httpCode;
 
             result.requestHeaders = parseRequestHeaders(logger, raw);
             result.responseHeaders = parseResponseHeaders(logger, raw);
-            result.responseBody = parseResponseBody(logger, raw, result);
+
+            result.responseBody = null;
+
+            if (data.saveResponseBody) {
+                result.responseBody = parseResponseBody(logger, raw, result);
+            }
 
             resolve(result);
         });
@@ -97,20 +112,48 @@ module.exports = {
 
             if (!result) {
                 logger.debug('no exec result', result);
-
-                return resolve({status: 'fail', message: 'empty exec result'});
+                return resolve({
+                    status: 'fail',
+                    message: 'empty exec result'
+                });
             }
 
             var status = {
+                code: result.code,
                 status: 'pass',
-                message: `http code = ${result.code}, response time = ${result.responseTime} ms`,
-                responseTime: result.responseTime
+                message: `http code = ${result.code}, response time = ${result.metrics.time.total} ms`,
+                metrics: {
+                    time: result.metrics.time,
+                    request: result.metrics.request,
+                    response: result.metrics.response
+                }
             };
+
+            if (data.httpCodes.indexOf(result.code) === -1) {
+                status.status = 'fail';
+                status.message = `unexpected http code = ${result.code} (allowed http codes = ${data.httpCodes.join(',')})`;
+                return resolve(status);
+            }
+
+            if (
+                typeof data.responseTimeWarn === 'number' &&
+                status.metrics.time.total >= data.responseTimeWarn
+            ) {
+                status.status = 'warn';
+                status.message = `response time = ${status.metrics.time.total}ms ( warning on ${data.responseTimeWarn}ms )`;
+            }
+
+            if (
+                typeof data.responseTimeFail === 'number' &&
+                status.metrics.time.total >= data.responseTimeFail
+            ) {
+                status.status = 'fail';
+                status.message = `response time = ${status.metrics.time.total}ms ( fail on ${data.responseTimeFail}ms )`;
+            }
 
             logger.debug('set status', status);
 
             resolve(status);
-
 
         });
 
