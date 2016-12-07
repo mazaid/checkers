@@ -1,8 +1,11 @@
 module.exports = function (header) {
-    var parts = header.match(/(.*):\s(.*)/);
+
+    var name = header.substr(0, header.indexOf(':'));
+
+    var value = header.substr(header.indexOf(' ') + 1);
 
     return {
-        name: parts[1].trim(),
-        value: parts[2].trim()
+        name: name.trim(),
+        value: value.trim()
     };
 };

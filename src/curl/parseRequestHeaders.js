@@ -1,11 +1,11 @@
 var parseHeader = require('./parseHeader');
 
-var requestHeadersRegex = /> (.*:\s.*)/g;
+var headerRegex = /^> ([-!#-'*+.0-9A-Z^-z|~]+):\s(.*)\r\n/gm;
 
 module.exports = function (logger, raw) {
     var headers = {};
 
-    var matches = raw.stderr.match(requestHeadersRegex);
+    var matches = raw.stderr.match(headerRegex);
 
     if (!matches) {
         return headers;
