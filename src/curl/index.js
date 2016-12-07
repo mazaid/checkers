@@ -39,6 +39,7 @@ module.exports = {
         url: null,
         saveResponseBody: false,
         httpCodes: [200],
+        compressed: true,
         responseTimeWarn: null,
         responseTimeFail: null
     },
@@ -57,6 +58,11 @@ module.exports = {
             args.push('--request ' + data.method);
             args.push(`--write-out '${curlTimingFormat}'`);
             args.push(`--user-agent 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/999'`);
+
+            if (data.compressed === true) {
+                args.push('--compressed');
+            }
+
             args.push(`'${data.url}'`);
 
             resolve({
