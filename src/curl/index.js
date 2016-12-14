@@ -53,9 +53,27 @@ module.exports = {
                 return reject(new Error('data.url should be a valid http uri'));
             }
 
+            if (data.method && data.method === 'HEAD') {
+                args.push('--head');
+            }
+
+            var retryCount = 2;
+            var retryDelay = 2;
+
+            if (data.retryCount) {
+                retryCount = data.retryCount;
+            }
+
+            if (data.retryDelay) {
+                retryDelay = data.retryDelay;
+            }
+
+            args.push(`--retry ${retryCount}`);
+            args.push(`--retry-delay ${retryDelay}`);
+
             args.push('--silent');
             args.push('--verbose');
-            args.push('--request ' + data.method);
+            args.push(`--request ${data.method}`);
             args.push(`--write-out '${curlTimingFormat}'`);
             args.push(`--user-agent 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/999'`);
 
